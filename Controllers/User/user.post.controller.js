@@ -7,7 +7,7 @@ import {
 
 export const passwordRequiredController = async (req, res, next) => {
   const { email } = req?.body?.email;
-  if (!isRequired({ email }, res)) return;
+  if (!isRequired({ email: email }, res)) return;
   return next();
 };
 
