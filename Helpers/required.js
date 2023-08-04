@@ -2,6 +2,7 @@ import { errorMessage } from "./utils.js";
 
 
 export const isRequired = (data, res) => {
+  console.log(data)
     let error = {};
     for (const i of Object.keys(data)) {
       if (data[i] === "" || typeof data[i] === "undefined") error[i] = "Is Required";

@@ -6,7 +6,7 @@ import {
 } from "../../Services/forgotpassword.service.js";
 
 export const passwordRequiredController = async (req, res, next) => {
-  const { email } = req?.body?.email;
+  const { email } = req?.body
   if (!isRequired({ email: email }, res)) return;
   return next();
 };
