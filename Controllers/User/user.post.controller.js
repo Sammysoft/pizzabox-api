@@ -28,7 +28,7 @@ export const verifyOtpController = async (req, res, next) => {
     { otp: req?.body?.otp, email: req?.body?.email },
     res
   );
-  if (verifiedOtp) return successMessage(200, "Otp Verified!", null)(res);
-  if (!verifiedOtp)
+  if (verifiedOtp === true) return successMessage(200, "Otp Verified!", null)(res);
+  if (verifiedOtp === false)
     return errorMessage(400, "Oops, OTP expired, request another!", null)(res);
 };

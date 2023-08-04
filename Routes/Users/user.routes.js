@@ -36,14 +36,12 @@ UserRoutes.post(
 UserRoutes.post(
   "/verify-otp",
   verifiedOtpRequiredController,
-  userMiddleware,
   verifyOtpController
 );
 
 UserRoutes.put(
   "/change-password",
   changePasswordRequiredController,
-  userMiddleware,
   changePasswordController
 );
 

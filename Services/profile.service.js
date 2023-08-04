@@ -9,6 +9,7 @@ export const changePasswordService = async (data, password) => {
     user = await user.save();
     return user;
   } catch (error) {
+    console.log(error)
     return false;
   }
 };

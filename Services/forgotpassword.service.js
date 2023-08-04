@@ -1,20 +1,21 @@
 import { OtpModel } from "../Models/otp.model.js";
 import otpGenerator from "otp-generator";
 import bcrypt from "bcrypt";
+import { errorMessage } from "../Helpers/utils.js";
 
 export const forgotPasswordService = async (data, res) => {
   try {
     const { email } = data;
     let tokenExists = await OtpModel.findOne({ email: email });
-    if (!tokenExists) {
+    if (tokenExists === null) {
       const expiryTime = new Date();
       expiryTime.setMinutes(expiryTime.getMinutes() + 5);
-      const otp = otpGenerator.generate(6, {
+      const otp = await otpGenerator.generate(6, {
         upperCase: false,
         specialChars: false,
         alphabets: false,
       });
-      let hashedOtp = bcrypt.hash(otp, 10);
+      let hashedOtp = await bcrypt.hash(otp, 10);
       let newOtp = await new OtpModel({
         email,
         otp: hashedOtp,
@@ -25,19 +26,19 @@ export const forgotPasswordService = async (data, res) => {
     } else {
       const expiryTime = new Date();
       expiryTime.setMinutes(expiryTime.getMinutes() + 5);
-      const otp = otpGenerator.generate(6, {
+      const otp = await otpGenerator.generate(6, {
         upperCase: false,
         specialChars: false,
         alphabets: false,
       });
-      let hashedOtp = bcrypt.hash(otp, 10);
+      let hashedOtp = await bcrypt.hash(otp, 10);
       tokenExists.otp = hashedOtp;
       tokenExists.expiry = expiryTime;
       tokenExists = await tokenExists.save();
       return tokenExists;
     }
   } catch (error) {
-    return false;
+    return errorMessage(400, error._message, null)(res);
   }
 };
 
@@ -52,11 +53,16 @@ export const VerifyOtpService = async (data, res) => {
   try {
     const { otp, email } = data;
     let storedOtp = await OtpModel.findOne({ email: email });
-    const isExpired = checkExpiry(storedOtp.expiry);
-    const isMatch = await bcrypt.compare(storedOtp.otp, otp);
-    if (isMatch && isExpired === false) return true;
-    if (!isMatch && isExpired === true) return false;
+    const isExpired = await checkExpiry(storedOtp.expiry);
+    const isMatch = await bcrypt.compareSync(otp, storedOtp.otp);
+    if (isMatch === true && isExpired === false) return true;
+    if (
+      (isMatch === false && isExpired === true) ||
+      (isMatch === true && isExpired === false) ||
+      (isMatch === true && isExpired === true)
+    )
+      return false;
   } catch (error) {
-    return false;
+    return errorMessage(400, error._message, null)(res);
   }
 };
